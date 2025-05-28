@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +39,11 @@ public class MoodController {
     //     return moodService.getAllMoods();
     // }
     @PostMapping
-    public ResponseEntity<MoodResponse> createMood(@RequestBody MoodRequest moodRequest) {
+    @Operation(summary = "Create a new mood entry", description = "Saves a new mood with optional note and current date.")
+    public ResponseEntity<MoodResponse> createMood(
+        @Parameter(description = "Mood details in JSON format", required = true)
+        @RequestBody MoodRequest moodRequest) {
+
         Mood mood = modelMapper.map(moodRequest, Mood.class);
         mood.setDate(LocalDate.now());
 
@@ -48,6 +54,7 @@ public class MoodController {
     }
 
     @GetMapping
+    @Operation(summary = "Get all mood entries", description = "Retrieves a list of all mood entries with details.")
     public List<MoodResponse> getAllMoods() {
         return moodRepository.findAll().stream()
                 .map(mood -> modelMapper.map(mood, MoodResponse.class))
