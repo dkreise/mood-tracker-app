@@ -104,4 +104,34 @@ public class MoodControllerTest {
                 .andExpect(jsonPath("$[1].mood").value("Sad"))
                 .andExpect(jsonPath("$[1].note").value("Feeling down."));
     }
+
+    @Test 
+    public void testGetMoodById() throws Exception {
+        Mood mood = new Mood("Happy", "Feeling great!", LocalDate.now());
+        mood.setId(1L);
+
+        MoodResponse response = new MoodResponse();
+        response.setId(1L);
+        response.setMood("Happy");
+        response.setNote("Feeling great!");
+        response.setDate(LocalDate.now());
+
+        when(moodRepository.findById(1L)).thenReturn(java.util.Optional.of(mood));
+        when(modelMapper.map(mood, MoodResponse.class)).thenReturn(response);
+
+        mockMvc.perform(get("/api/moods/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.mood").value("Happy"))
+                .andExpect(jsonPath("$.note").value("Feeling great!"));
+    }
+
+    @Test
+    public void testGetMoodByIdNotFound() throws Exception {
+        Long moodId = 100L;
+        when(moodRepository.findById(moodId)).thenReturn(java.util.Optional.empty());
+
+        mockMvc.perform(get("/api/moods/{id}", moodId))
+                .andExpect(status().isNotFound());
+    }
 }
