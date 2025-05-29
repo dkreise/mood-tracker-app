@@ -61,7 +61,15 @@ public class MoodController {
                 .collect(Collectors.toList());
     }
 
-    // @GetMapping("/{id}")
+    @GetMapping("/{id}")
+    public ResponseEntity<MoodResponse> getMoodById(
+        @Parameter(description = "ID of the mood entry to retrieve", required = true)
+        @PathVariable Long id) {
+
+        return moodRepository.findById(id)
+                .map(mood -> ResponseEntity.ok(modelMapper.map(mood, MoodResponse.class)))
+                .orElse(ResponseEntity.notFound().build());
+    }
     // public Mood getMoodById(@PathVariable Long id) {
     //     return moodService.getMoodById(id);
     // }
