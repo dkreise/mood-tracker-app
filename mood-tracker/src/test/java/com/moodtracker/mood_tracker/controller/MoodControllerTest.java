@@ -18,10 +18,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(MoodController.class)
@@ -134,5 +137,14 @@ public class MoodControllerTest {
 
         mockMvc.perform(get("/api/moods/{id}", moodId))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testDeleteMoodById() throws Exception {
+        Long moodId = 1L;
+        doNothing().when(moodService).deleteMood(moodId);
+        mockMvc.perform(delete("/api/moods/{id}", moodId))
+                .andExpect(status().isNoContent());
+        verify(moodService).deleteMood(moodId);
     }
 }

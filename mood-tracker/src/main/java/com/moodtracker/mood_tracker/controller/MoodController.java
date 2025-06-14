@@ -7,6 +7,7 @@ import com.moodtracker.mood_tracker.dto.MoodResponse;
 import com.moodtracker.mood_tracker.repository.MoodRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,8 +62,9 @@ public class MoodController {
         return ResponseEntity.ok(response);
     }
 
-    // @DeleteMapping("/{id}")
-    // public void deleteMood(@PathVariable Long id) {
-    //     moodService.deleteMood(id);
-    // }
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMoodById(@PathVariable Long id) {
+        moodService.deleteMood(id);
+    }
 }
