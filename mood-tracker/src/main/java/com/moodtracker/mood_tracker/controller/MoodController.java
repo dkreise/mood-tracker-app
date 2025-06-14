@@ -20,34 +20,22 @@ import java.time.LocalDate;
 @RequestMapping("/api/moods")
 public class MoodController {
     // @Autowired
-    // private MoodService moodService;
-    private final MoodRepository moodRepository;
+    private final MoodService moodService;
     private final ModelMapper modelMapper;
 
-    public MoodController(MoodRepository moodRepository, ModelMapper modelMapper) {
-        this.moodRepository = moodRepository;
+    public MoodController(MoodService moodService, ModelMapper modelMapper) {
+        this.moodService = moodService;
         this.modelMapper = modelMapper;
     }
 
-    // @PostMapping
-    // public Mood addMood(@RequestBody Mood mood) {
-    //     return moodService.saveMood(mood);
-    // }
-
-    // @GetMapping
-    // public List<Mood> getAllMoods() {
-    //     return moodService.getAllMoods();
-    // }
     @PostMapping
     @Operation(summary = "Create a new mood entry", description = "Saves a new mood with optional note and current date.")
     public ResponseEntity<MoodResponse> createMood(
         @Parameter(description = "Mood details in JSON format", required = true)
         @RequestBody MoodRequest moodRequest) {
 
-        Mood mood = modelMapper.map(moodRequest, Mood.class);
-        mood.setDate(LocalDate.now());
-
-        Mood savedMood = moodRepository.save(mood);
+        Mood newMood = modelMapper.map(moodRequest, Mood.class);
+        Mood savedMood = moodService.createMood(newMood);
         MoodResponse response = modelMapper.map(savedMood, MoodResponse.class);
 
         return ResponseEntity.status(201).body(response);
@@ -56,7 +44,7 @@ public class MoodController {
     @GetMapping
     @Operation(summary = "Get all mood entries", description = "Retrieves a list of all mood entries with details.")
     public List<MoodResponse> getAllMoods() {
-        return moodRepository.findAll().stream()
+        return moodService.getAllMoods().stream()
                 .map(mood -> modelMapper.map(mood, MoodResponse.class))
                 .collect(Collectors.toList());
     }
@@ -65,14 +53,13 @@ public class MoodController {
     public ResponseEntity<MoodResponse> getMoodById(
         @Parameter(description = "ID of the mood entry to retrieve", required = true)
         @PathVariable Long id) {
-
-        return moodRepository.findById(id)
-                .map(mood -> ResponseEntity.ok(modelMapper.map(mood, MoodResponse.class)))
-                .orElse(ResponseEntity.notFound().build());
+        Mood mood = moodService.getMoodById(id);
+        if (mood == null) {
+            return ResponseEntity.notFound().build();
+        }
+        MoodResponse response = modelMapper.map(mood, MoodResponse.class);
+        return ResponseEntity.ok(response);
     }
-    // public Mood getMoodById(@PathVariable Long id) {
-    //     return moodService.getMoodById(id);
-    // }
 
     // @DeleteMapping("/{id}")
     // public void deleteMood(@PathVariable Long id) {

@@ -4,7 +4,8 @@ import com.moodtracker.mood_tracker.model.Mood;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moodtracker.mood_tracker.dto.MoodRequest;
 import com.moodtracker.mood_tracker.dto.MoodResponse;
-import com.moodtracker.mood_tracker.repository.MoodRepository;
+// import com.moodtracker.mood_tracker.repository.MoodRepository;
+import com.moodtracker.mood_tracker.service.MoodService;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class MoodControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private MoodRepository moodRepository;
+    private MoodService moodService;
 
     @MockBean
     private ModelMapper modelMapper;
@@ -58,7 +59,7 @@ public class MoodControllerTest {
         response.setDate(LocalDate.now());
 
         when(modelMapper.map(any(MoodRequest.class), eq(Mood.class))).thenReturn(mood);
-        when(moodRepository.save(mood)).thenReturn(savedMood);
+        when(moodService.createMood(any(Mood.class))).thenReturn(savedMood);
         when(modelMapper.map(savedMood, MoodResponse.class)).thenReturn(response);
 
         mockMvc.perform(post("/api/moods")
@@ -95,7 +96,7 @@ public class MoodControllerTest {
         when(modelMapper.map(mood1, MoodResponse.class)).thenReturn(response1);
         when(modelMapper.map(mood2, MoodResponse.class)).thenReturn(response2);
 
-        when(moodRepository.findAll()).thenReturn(moods);
+        when(moodService.getAllMoods()).thenReturn(moods);
 
         mockMvc.perform(get("/api/moods"))
                 .andExpect(status().isOk())
@@ -116,7 +117,7 @@ public class MoodControllerTest {
         response.setNote("Feeling great!");
         response.setDate(LocalDate.now());
 
-        when(moodRepository.findById(1L)).thenReturn(java.util.Optional.of(mood));
+        when(moodService.getMoodById(1L)).thenReturn(mood);
         when(modelMapper.map(mood, MoodResponse.class)).thenReturn(response);
 
         mockMvc.perform(get("/api/moods/1"))
@@ -129,7 +130,7 @@ public class MoodControllerTest {
     @Test
     public void testGetMoodByIdNotFound() throws Exception {
         Long moodId = 100L;
-        when(moodRepository.findById(moodId)).thenReturn(java.util.Optional.empty());
+        when(moodService.getMoodById(moodId)).thenReturn(null);
 
         mockMvc.perform(get("/api/moods/{id}", moodId))
                 .andExpect(status().isNotFound());
