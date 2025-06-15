@@ -147,4 +147,16 @@ public class MoodControllerTest {
                 .andExpect(status().isNoContent());
         verify(moodService).deleteMood(moodId);
     }
+
+    @Test
+    public void testCreateMood_InvalidInput() throws Exception {
+        MoodRequest request = new MoodRequest(); // Empty fields
+        request.setMood("");
+
+        mockMvc.perform(post("/api/moods")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mood").value("Mood type must not be blank"));
+    }
 }

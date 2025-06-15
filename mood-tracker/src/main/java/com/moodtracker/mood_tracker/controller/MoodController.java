@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ public class MoodController {
     @Operation(summary = "Create a new mood entry", description = "Saves a new mood with optional note and current date.")
     public ResponseEntity<MoodResponse> createMood(
         @Parameter(description = "Mood details in JSON format", required = true)
-        @RequestBody MoodRequest moodRequest) {
+        @Valid @RequestBody MoodRequest moodRequest) {
 
         Mood newMood = modelMapper.map(moodRequest, Mood.class);
         Mood savedMood = moodService.createMood(newMood);
